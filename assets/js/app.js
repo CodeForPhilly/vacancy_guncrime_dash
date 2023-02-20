@@ -1,15 +1,15 @@
 var config = {
-  geojson: "https://gist.githubusercontent.com/JJediny/b238fc15e3b31a2e3432/raw/3d73dbd7d4c950c8e85fdb7485567e84eca90772/CitizenScienceandCrowdsourcing_WWilson.geojson",
-  title: "Federal Citizen Science and Crowdsourcing Projects",
-  layerName: "Projects",
-  hoverProperty: "project_name",
-  sortProperty: "agency_sponsor",
+  geojson: "./joined_gdf.geojson",
+  title: "Vacant and Abandoned Properties in Philadelphia",
+  layerName: "joined_gdf",
+  hoverProperty: "address",
+  sortProperty: "guncrime_density",
   sortOrder: "desc"
 };
 
 var properties = [{
-  value: "project_name",
-  label: "Project Name",
+  value: "address",
+  label: "Address",
   table: {
     visible: true,
     sortable: true
@@ -19,8 +19,107 @@ var properties = [{
   },
   info: false
 }, {
-  value: "status",
-  label: "Status",
+  value: "guncrime_density",
+  label: "Gun Crime Rate",
+  table: {
+    visible: true,
+    sortable: true
+  },
+  filter: {
+    type: "string"
+  },
+  info: false
+}, {
+  value: "tree_canopy_gap",
+  label: "Tree Canopy Gap",
+  table: {
+    visible: true,
+    sortable: true
+  },
+  filter: {
+    type: "string"
+  },
+  info: false
+}, {
+  value: "owner",
+  label: "Owner(s)",
+  table: {
+    visible: true,
+    sortable: true
+  },
+  filter: {
+    type: "string"
+  },
+  info: false
+}, {
+  value: "public_owner",
+  label: "Public Owner?",
+  table: {
+    visible: true,
+    sortable: true
+  },
+  filter: {
+    type: "boolean"
+  },
+  info: false
+}, {
+  value: "comm_partn",
+  label: "PHS Partner",
+  table: {
+    visible: true,
+    sortable: true
+  },
+  filter: {
+    type: "string"
+  },
+  info: false
+}, {
+  value: "type",
+  label: "Parcel Type",
+  table: {
+    visible: true,
+    sortable: true
+  },
+  filter: {
+    type: "string"
+  },
+  info: false
+}, {
+  value: "blg_desc",
+  label: "Parcel Description",
+  table: {
+    visible: true,
+    sortable: true
+  },
+  filter: {
+    type: "string"
+  },
+  info: false
+}, {
+  value: "li_complaints",
+  label: "L&I Complaints",
+  table: {
+    visible: true,
+    sortable: true
+  },
+  filter: {
+    type: "string"
+  },
+  info: false
+}, {
+  value: "li_code_violations",
+  label: "L&I Code Violations",
+  table: {
+    visible: true,
+    sortable: true
+  },
+  filter: {
+    type: "string"
+  },
+  info: false
+}, {
+  value: "councildistrict",
+  label: "Council District",
   table: {
     visible: true,
     sortable: true
@@ -34,66 +133,47 @@ var properties = [{
     values: []
   }
 }, {
-  value: "agency_sponsor",
-  label: "Federal Sponsor(s)",
+  value: "zipcode",
+  label: "Zip Code",
+  table: {
+    visible: true,
+    sortable: true
+  },
+  filter: {
+    type: "string",
+    input: "checkbox",
+    vertical: true,
+    multiple: true,
+    operators: ["in", "not_in", "equal", "not_equal"],
+    values: []
+  }
+}, {
+  value: "neighborhood",
+  label: "Neighborhood",
+  table: {
+    visible: true,
+    sortable: true
+  },
+  filter: {
+    type: "string",
+    input: "checkbox",
+    vertical: true,
+    multiple: true,
+    operators: ["in", "not_in", "equal", "not_equal"],
+    values: []
+  }
+}, {
+  value: "relevant_rcos",
+  label: "Relevant RCOs",
   table: {
     visible: true,
     sortable: true
   },
   filter: {
     type: "string"
-  }
-}, {
-  value: "agency_partner",
-  label: "Agency Partner",
-  table: {
-    visible: true,
-    sortable: true
   },
-  filter: {
-    type: "string"
-  }
-}, {
-  value: "project_topic",
-  label: "Topic(s)",
-  table: {
-    visible: true,
-    sortable: true
-  },
-  filter: {
-    type: "integer"
-  }
-}, {
-  value: "project_description",
-  label: "Description",
-  table: {
-    visible: true,
-    sortable: true
-  },
-  filter: {
-    type: "integer"
-  }
-}, {
-  value: "project_url",
-  label: "URL",
-  table: {
-    visible: false,
-    sortable: true
-  },
-  filter: {
-    type: "integer"
-  }
-}, {
-  value: "participation_tasks",
-  label: "Participation",
-  table: {
-    visible: true,
-    sortable: true
-  },
-  filter: {
-    type: "integer"
-  }
-}];
+  info: false
+}]; 
 
 function drawCharts() {
   // Status
@@ -367,13 +447,14 @@ $.getJSON(config.geojson, function(data) {
 });
 
 var map = L.map("map", {
-  layers: [mapboxTerrian, featureLayer, highlightLayer]
+  layers: [mapboxTerrian, featureLayer, highlightLayer], 
+  preferCanvas: true,
 }).fitWorld();
 
 // ESRI geocoder
-var searchControl = L.esri.Geocoding.Controls.geosearch({
-  useMapBounds: 17
-}).addTo(map);
+//var searchControl = L.esri.Geocoding.Controls.geosearch({
+ // useMapBounds: 17
+//}).addTo(map);
 
 // Info control
 var info = L.control({
