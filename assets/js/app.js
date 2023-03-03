@@ -1,7 +1,7 @@
 var config = {
-  geojson: "./joined_gdf.geojson",
+  geojson: "./joined_gdf_sample.geojson",
   title: "Vacant and Abandoned Properties in Philadelphia",
-  layerName: "joined_gdf",
+  layerName: "Properties",
   hoverProperty: "address",
   sortProperty: "guncrime_density",
   sortOrder: "desc"
@@ -176,45 +176,137 @@ var properties = [{
 }]; 
 
 function drawCharts() {
-  // Status
-  $(function() {
-    var result = alasql(
-      "SELECT status AS label, COUNT(*) AS total FROM ? GROUP BY status", [
-        features
-      ]);
-    var columns = $.map(result, function(status) {
-      return [
-        [status.label, status.total]
-      ];
-    });
-    var chart = c3.generate({
-      bindto: "#status-chart",
-      data: {
-        type: "pie",
-        columns: columns
+// Public Owner
+$(function() {
+  var result = alasql(
+    "SELECT public_owner AS label, COUNT(*) AS total FROM ? GROUP BY public_owner", [
+      features
+    ]);
+  var columns = $.map(result, function(public_owner) {
+    return [
+      [public_owner.label, public_owner.total]
+    ];
+  });
+  var chart = c3.generate({
+    bindto: "#public-owner-chart",
+    data: {
+      type: "pie",
+      columns: columns,
+      names: {
+        true: 'Public',
+        false: 'Private'
+      },
+      colors: {
+        true: '#ffa600',
+        false: '#ffa600'
       }
-    });
+    }
+  });
+});
+
+
+// Guncrime Density
+$(function() {
+  var result = alasql(
+    "SELECT guncrime_density AS label, COUNT(*) AS total FROM ? GROUP BY guncrime_density", [
+      features
+    ]);
+  var columns = [
+    ['Bottom 50%', 0],
+    ['Top 50%', 0],
+    ['Top 25%', 0],
+    ['Top 10%', 0],
+    ['Top 5%', 0],
+    ['Top 1%', 0]
+  ];
+
+  // Update the count for each guncrime density
+  result.forEach(function(guncrime_density) {
+    switch (guncrime_density.label) {
+      case 'Bottom 50%':
+        columns[0][1] = guncrime_density.total;
+        break;
+      case 'Top 50%':
+        columns[1][1] = guncrime_density.total;
+        break;
+      case 'Top 25%':
+        columns[2][1] = guncrime_density.total;
+        break;
+      case 'Top 10%':
+        columns[3][1] = guncrime_density.total;
+        break;
+      case 'Top 5%':
+        columns[4][1] = guncrime_density.total;
+        break;
+      case 'Top 1%':
+        columns[5][1] = guncrime_density.total;
+        break;
+    }
   });
 
-  // Agencies
-  $(function() {
-    var result = alasql(
-      "SELECT agency_sponsor AS label, COUNT(*) AS total FROM ? GROUP BY agency_sponsor", [
-        features
-      ]);
-    var columns = $.map(result, function(zone) {
-      return [
-        [zone.label, zone.total]
-      ];
-    });
-    var chart = c3.generate({
-      bindto: "#zone-chart",
-      data: {
-        type: "pie",
-        columns: columns
+  var chart = c3.generate({
+    bindto: "#guncrime-bar",
+    data: {
+      type: "bar",
+      columns: columns
+    },
+    color: {
+      pattern: ['#003f5c',  '#444e86', '#955196', '#d518d2', '#ff6e54', '#ffa600']
       }
-    });
   });
+});
+
+
+// Tree Canopy gap
+$(function() {
+  var result = alasql(
+    "SELECT tree_canopy_gap AS label, COUNT(*) AS total FROM ? GROUP BY tree_canopy_gap", [
+      features
+    ]);
+  var columns = [
+    ['Bottom 50%', 0],
+    ['Top 50%', 0],
+    ['Top 25%', 0],
+    ['Top 10%', 0],
+    ['Top 5%', 0],
+    ['Top 1%', 0]
+  ];
+
+  // Update the count for each tree canopy gap
+  result.forEach(function(tree_canopy_gap) {
+    switch (tree_canopy_gap.label) {
+      case 'Bottom 50%':
+        columns[0][1] = tree_canopy_gap.total;
+        break;
+      case 'Top 50%':
+        columns[1][1] = tree_canopy_gap.total;
+        break;
+      case 'Top 25%':
+        columns[2][1] = tree_canopy_gap.total;
+        break;
+      case 'Top 10%':
+        columns[3][1] = tree_canopy_gap.total;
+        break;
+      case 'Top 5%':
+        columns[4][1] = tree_canopy_gap.total;
+        break;
+      case 'Top 1%':
+        columns[5][1] = tree_canopy_gap.total;
+        break;
+    }
+  });
+
+  var chart = c3.generate({
+    bindto: "#tree-canopy-bar",
+    data: {
+      type: "bar",
+      columns: columns
+    },
+    color: {
+      pattern: ['#003f5c',  '#444e86', '#955196', '#d518d2', '#ff6e54', '#ffa600']
+      }
+  });
+});
 
   // Species
   $(function() {
@@ -342,26 +434,15 @@ function buildConfig() {
 }
 
 // Basemap Layers
-var mapboxTerrian = L.tileLayer(
-  "http://{s}.tiles.mapbox.com/v3/energy.map-ayrdk7iy/{z}/{x}/{y}.png", {
-    maxZoom: 18,
-    subdomains: ["a", "b", "c"],
-    attribution: 'Tiles courtesy of <a href="http://www.mapbox.com" target="_blank">Mapbox Team</a>. Map data (c) <a href="http://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a> contributors, CC-BY-SA.'
-  });
 
-var humanitarianOSM = L.tileLayer(
-  "http://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png", {
-    maxZoom: 19,
-    subdomains: ["a", "b", "c"],
-    attribution: 'Tiles courtesy of <a href="http://www.hotosm.org" target="_blank">Humanitarian OpenStreetMap Team</a>. Map data (c) <a href="http://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a> contributors, CC-BY-SA.'
-  });
-
-var stamenToner = L.tileLayer(
-  "http://{s}.tile.stamen.com/toner/{z}/{x}/{y}.png", {
-    maxZoom: 19,
-    subdomains: ["a", "b", "c"],
-    attribution: 'Labels courtesy of <a href="http://maps.stamen.com/" target="_blank">Stamen Design</a>. Map data (c) <a href="http://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a> contributors, CC-BY-3.0.'
-  });
+var grayBasemap = L.tileLayer(
+  "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}",
+  {
+    attribution:
+      'Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ',
+    maxZoom: 16,
+  }
+);
 
 var highlightLayer = L.geoJson(null, {
   pointToLayer: function(feature, latlng) {
@@ -447,14 +528,68 @@ $.getJSON(config.geojson, function(data) {
 });
 
 var map = L.map("map", {
-  layers: [mapboxTerrian, featureLayer, highlightLayer], 
+  layers: [featureLayer, highlightLayer], 
   preferCanvas: true,
 }).fitWorld();
 
-// ESRI geocoder
-//var searchControl = L.esri.Geocoding.Controls.geosearch({
- // useMapBounds: 17
-//}).addTo(map);
+// Define custom search control using Nominatim geocoder
+var searchControl = L.Control.extend({
+  options: {
+    position: 'bottomleft'
+  },
+
+  onAdd: function (map) {
+    // Create search form element
+    var searchForm = L.DomUtil.create('form', 'leaflet-search-form leaflet-bar');
+    searchForm.setAttribute('autocomplete', 'off');
+    searchForm.addEventListener('submit', this.search);
+
+    // Create search input element
+    var searchInput = L.DomUtil.create('input', 'leaflet-search-input', searchForm);
+    searchInput.type = 'text';
+    searchInput.placeholder = 'Search for a location';
+    searchInput.style.width = '300px'; // Set width to 300px
+
+    // Create search button element
+    var searchButton = L.DomUtil.create('button', 'leaflet-search-button', searchForm);
+    searchButton.type = 'submit';
+    searchButton.innerHTML = 'Search an Address';
+
+    return searchForm;
+  },
+
+  search: function (event) {
+    // Prevent form from submitting and reloading the page
+    event.preventDefault();
+
+    // Get search query from input field
+    var query = event.target.querySelector('.leaflet-search-input').value;
+
+    // Geocode search query using Nominatim
+    fetch('https://nominatim.openstreetmap.org/search?format=json&q=' + encodeURIComponent(query))
+      .then(response => response.json())
+      .then(data => {
+        // Get first search result and zoom to its location
+        if (data.length > 0) {
+          var result = data[0];
+          var latlng = L.latLng(result.lat, result.lon);
+          map.setView(latlng, 16);
+
+          // Add a temporary marker at the search result location
+        var marker = L.marker(latlng).addTo(map);
+        setTimeout(function() {
+          map.removeLayer(marker);
+        }, 10000); // Remove the marker after 10 seconds
+        }
+      })
+      .catch(error => {
+        console.error(error);
+      });
+  }
+});
+
+// Add custom search control to map
+map.addControl(new searchControl());
 
 // Info control
 var info = L.control({
@@ -473,6 +608,9 @@ info.update = function(props) {
 info.addTo(map);
 $(".info-control").hide();
 
+// Add the grayBasemap layer as the default
+map.addLayer(grayBasemap);
+
 // Larger screens get expanded layer control
 if (document.body.clientWidth <= 767) {
   isCollapsed = true;
@@ -480,9 +618,7 @@ if (document.body.clientWidth <= 767) {
   isCollapsed = false;
 }
 var baseLayers = {
-  "Humanitarian OpenStreetMap": humanitarianOSM,
-  "Mapbox Terrian": mapboxTerrian,
-  "Stamen Toner": stamenToner
+  "ESRI World Gray": grayBasemap,
 };
 var overlayLayers = {
   "<span id='layer-name'>GeoJSON Layer</span>": featureLayer
