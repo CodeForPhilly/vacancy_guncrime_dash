@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Mapbox Example</title>
+  <meta charset='utf-8' />
+  <meta name='viewport' content='width=device-width, initial-scale=1' />
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <link href='https://api.mapbox.com/mapbox-gl-js/v2.3.1/mapbox-gl.css' rel='stylesheet' />
+  <script src='https://api.mapbox.com/mapbox-gl-js/v2.3.1/mapbox-gl.js'></script>
+  <link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.7.2/mapbox-gl-geocoder.css" type="text/css">
+  <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.7.2/mapbox-gl-geocoder.min.js"></script>
+  <style>
+    body { margin: 0; padding: 0; }
+    #map { position: absolute; top: 0; bottom: 0; width: 100%; }
+  </style>
+</head>
+<body>
+    <div>
+    <label for="filter">Select guncrime density:</label>
+    <select id="filter">
+      <option value="">All</option>
+      <option value="Bottom 50%">Bottom 50%</option>
+      <option value="Top 50%">Top 50%</option>
+      <option value="Top 25%">Top 25%</option>
+      <option value="Top 10%">Top 10%</option>
+      <option value="Top 5%">Top 5%</option>
+      <option value="Top 1%">Top 1%</option>
+    </select>
+    </div>
+  <div id='map'></div>
+  <div id="geocoder" class="geocoder-container"></div>
+  <script>
+    $(document).ready(function() {
+    mapboxgl.accessToken = 'pk.eyJ1IjoibmxlYm92aXRzIiwiYSI6ImNsZXQ2Nzd3ZDBjZnYzcHFvYXhib2RqYzQifQ.PWg2LuNCH1E6-REjmYvdOg';
+    var map = new mapboxgl.Map({
+      container: 'map',
+      style: 'mapbox://styles/mapbox/light-v11',
+      center: [-75.16, 39.95], // starting position [lng, lat]
+      zoom: 11 // starting zoom
+    });
+
+    var geocoderContainer = document.getElementById('geocoder');
+        map.getContainer().appendChild(geocoderContainer);
+
+    map.on('load', function () {
+      map.addSource('joined_gdf-dr7mul', {
+        type: 'vector',
+        url: 'mapbox://nlebovits.cne7vaoz' // note: these are the simplified geoms from when I last generated the dataset
+      });
+
+      map.addLayer({
+        id: 'parcels_data',
+        type: 'fill',
+        source: 'joined_gdf-dr7mul',
+        'source-layer': 'joined_gdf-dr7mul',
+        paint: {
+            'fill-color': [
+            'match',
+            ['get', 'guncrime_density'],
+            'Bottom 50%', '#003f5c',
+            'Top 50%', '#444e86',
+            'Top 25%', '#955196',
+            'Top 10%', '#dd5182',
+            'Top 5%', '#ff6e54',
+            'Top 1%', '#ffa600',
+            /* other */ '#808080'
+            ],
+            'fill-opacity': 0.5
+        },
+        minzoom: 0
+        });
+
+        // Create a new popup and add it to the map
+        var popup = new mapboxgl.Popup({
+        closeButton: false,
+        closeOnClick: false
+        });
+
+        // Add hover and click events to the layer
+        map.on('mousemove', 'parcels_data', function (e) {
+        // Change the cursor style to indicate interactivity
+        map.getCanvas().style.cursor = 'pointer';
+
+        // Get the feature that the mouse is hovering over
+        var feature = e.features[0];
+
+        // Update the popup content and location
+        popup.setLngLat(e.lngLat)
+            .setHTML('<h3>' + feature.properties.address + '</h3><p>' + feature.properties.guncrime_density + '</p><p>' + feature.properties.owner + '</p>')
+            .addTo(map);
+        });
+
+        map.on('mouseleave', 'parcels_data', function () {
+        // Reset the cursor style and remove the popup
+        map.getCanvas().style.cursor = '';
+        popup.remove();
+        });
+
+        //add an address search bar
+        map.addControl(
+        new MapboxGeocoder({
+        accessToken: mapboxgl.accessToken,
+        mapboxgl: mapboxgl
+        })
+        );
+
+    });
+        
+        // add an event listener to the select element
+        $('#filter').on('change', function() {
+        var filter = ['in', 'guncrime_density', $(this).val()];
+        map.setFilter('parcels_data', filter);
+         });
+
+    });
+
+    // add a bootstrap table based on the data
+    
+
+  </script>
+</body>
+</html>
+
+
+<!-- think about end users: how will they interact with this -->
+<!-- or low tech solutions: filter by neighborhoods w highest guncrime -->
+<!-- prioritize thoughtful dashboard design -->
