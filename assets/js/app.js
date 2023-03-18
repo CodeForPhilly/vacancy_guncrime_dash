@@ -173,7 +173,7 @@ var properties = [{
     type: "string"
   },
   info: false
-}]; 
+}];
 
 function drawCharts() {
 // Public Owner
@@ -444,6 +444,47 @@ var grayBasemap = L.tileLayer(
   }
 );
 
+var exampleDataLayer = L.vectorGrid.protobuf(
+  "https://api.mapbox.com/v4/nlebovits.cne7vaoz/{z}/{x}/{y}.vector.pbf?access_token={token}",
+  {
+    token: "pk.eyJ1IjoibmxlYm92aXRzIiwiYSI6ImNsZXQ2Nzd3ZDBjZnYzcHFvYXhib2RqYzQifQ.PWg2LuNCH1E6-REjmYvdOg",
+    minZoom: 13,
+    interactive: true,
+    vectorTileLayerStyles: {
+      "joined_gdf-dr7mul": function(properties, zoom) {
+        const fillColor = properties.guncrime_density === 'Bottom 50%' ? '#003f5c' :
+          properties.guncrime_density === 'Top 50%' ? '#444e86' :
+          properties.guncrime_density === 'Top 25%' ? '#955196' :
+          properties.guncrime_density === 'Top 10%' ? '#dd5182' :
+          properties.guncrime_density === 'Top 5%' ? '#ff6e54' :
+          properties.guncrime_density === 'Top 1%' ? '#ffa600' :
+          '#808080';
+        const fillOpacity = 0.5;
+
+        return {
+          stroke: false,
+          fill: true,
+          fillColor: fillColor,
+          fillOpacity: fillOpacity,
+        };
+      }
+    }
+  }
+)
+exampleDataLayer.on("mouseover", function(e) {
+  const popup = L.popup()
+    .setLatLng(e.latlng)
+    .setContent(`
+      <h3>${e.layer.properties.address}</h3>
+      <p>${e.layer.properties.guncrime_density}</p>
+      <p>${e.layer.properties.owner}</p>
+    `)
+    .openOn(map);
+});
+exampleDataLayer.on("mouseout", function(e) {
+  map.closePopup();
+});
+
 var highlightLayer = L.geoJson(null, {
   pointToLayer: function(feature, latlng) {
     return L.circleMarker(latlng, {
@@ -528,7 +569,7 @@ $.getJSON(config.geojson, function(data) {
 });
 
 var map = L.map("map", {
-  layers: [featureLayer, highlightLayer], 
+  layers: [/*featureLayer, */highlightLayer],
   preferCanvas: true,
 }).fitWorld();
 
@@ -610,6 +651,7 @@ $(".info-control").hide();
 
 // Add the grayBasemap layer as the default
 map.addLayer(grayBasemap);
+map.addLayer(exampleDataLayer);
 
 // Larger screens get expanded layer control
 if (document.body.clientWidth <= 767) {
