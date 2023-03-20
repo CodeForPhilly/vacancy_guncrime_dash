@@ -365,6 +365,7 @@ function buildConfig() {
         '</a>'
       ].join("");
     },
+    /*
     events: {
       "click .zoom": function(e, value, row, index) {
         map.fitBounds(featureLayer.getLayer(row.leaflet_stamp).getBounds());
@@ -377,6 +378,7 @@ function buildConfig() {
         highlightLayer.addData(featureLayer.getLayer(row.leaflet_stamp).toGeoJSON());
       }
     }
+    */
   }];
 
 
@@ -468,6 +470,9 @@ var exampleDataLayer = L.vectorGrid.protobuf(
           fillOpacity: fillOpacity,
         };
       }
+    },
+    getFeatureId: function(f) {
+      return f.properties.opa_id;
     }
   }
 )
@@ -508,17 +513,17 @@ var highlightLayer = L.geoJson(null, {
     };
   }
 });
-
+/*
 var featureLayer = L.geoJson(null, {
   filter: function(feature, layer) {
     return feature.geometry.coordinates[0] !== 0 && feature.geometry.coordinates[
       1] !== 0;
   },
-  /*style: function (feature) {
+  style: function (feature) {
     return {
       color: feature.properties.color
     };
-  },*/
+  },
   pointToLayer: function(feature, latlng) {
     if (feature.properties && feature.properties["marker-color"]) {
       markerColor = feature.properties["marker-color"];
@@ -556,6 +561,7 @@ var featureLayer = L.geoJson(null, {
     }
   }
 });
+*/
 
 // Fetch the GeoJSON file
 $.getJSON(config.geojson, function(data) {
@@ -563,16 +569,17 @@ $.getJSON(config.geojson, function(data) {
   features = $.map(geojson.features, function(feature) {
     return feature.properties;
   });
-  featureLayer.addData(data);
+  /*featureLayer.addData(data);*/
   buildConfig();
   $("#loading-mask").hide();
 });
 
 var map = L.map("map", {
-  layers: [/*featureLayer, */highlightLayer],
+  layers: [/*featureLayer,*/ highlightLayer],
   preferCanvas: true,
 }).fitWorld();
 
+/*
 // Define custom search control using Nominatim geocoder
 var searchControl = L.Control.extend({
   options: {
@@ -631,6 +638,7 @@ var searchControl = L.Control.extend({
 
 // Add custom search control to map
 map.addControl(new searchControl());
+*/
 
 // Info control
 var info = L.control({
@@ -663,11 +671,14 @@ var baseLayers = {
   "ESRI World Gray": grayBasemap,
 };
 var overlayLayers = {
-  "<span id='layer-name'>GeoJSON Layer</span>": featureLayer
+  "<span id='layer-name'>Properties</span>": exampleDataLayer
 };
+
+/*
 var layerControl = L.control.layers(baseLayers, overlayLayers, {
   collapsed: isCollapsed
 }).addTo(map);
+*/
 
 // Filter table to only show features in current map bounds
 map.on("moveend", function(e) {
@@ -698,6 +709,9 @@ function applyFilter() {
   var sql = $("#query-builder").queryBuilder("getSQL", false, false).sql;
   if (sql.length > 0) {
     query += " WHERE " + sql;
+/*
+Here, we'll want to restyle the vt layers so that it becomes transparent and noninteractive
+*/
   }
   alasql(query, [geojson.features], function(features) {
     featureLayer.clearLayers();
@@ -730,7 +744,9 @@ function buildTable() {
     }
   });
 
+  /*
   map.fitBounds(featureLayer.getBounds());
+*/
 
   $(window).resize(function() {
     $("#table").bootstrapTable("resetView", {
@@ -741,14 +757,18 @@ function buildTable() {
 
 function syncTable() {
   tableFeatures = [];
-  featureLayer.eachLayer(function(layer) {
+  /* featureLayer.eachLayer(function(layer) {
     layer.feature.properties.leaflet_stamp = L.stamp(layer);
     if (map.hasLayer(featureLayer)) {
       if (map.getBounds().contains(layer.getBounds())) {
         tableFeatures.push(layer.feature.properties);
       }
     }
+  });*/
+  geojson.features.forEach(function(feature) {
+    tableFeatures.push(feature.properties);
   });
+
   $("#table").bootstrapTable("load", JSON.parse(JSON.stringify(tableFeatures)));
   var featureCount = $("#table").bootstrapTable("getData").length;
   if (featureCount == 1) {
