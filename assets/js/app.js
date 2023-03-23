@@ -198,7 +198,7 @@ $(function() {
       },
       colors: {
         true: '#ffa600',
-        false: '#ffa600'
+        false: '#003f5c'
       }
     }
   });
@@ -455,7 +455,7 @@ var featureStyle = function(properties, zoom) {
     properties.guncrime_density === 'Top 5%' ? '#ff6e54' :
     properties.guncrime_density === 'Top 1%' ? '#ffa600' :
     '#808080';
-  const fillOpacity = 0.5;
+  const fillOpacity = 0.7;
 
   return {
     stroke: false,
@@ -483,10 +483,11 @@ exampleDataLayer.on("mouseover", function(e) {
   const popup = L.popup()
     .setLatLng(e.latlng)
     .setContent(`
-      <h3>${e.layer.properties.address}</h3>
-      <p>${e.layer.properties.guncrime_density}</p>
-      <p>${e.layer.properties.owner}</p>
-      <p>${e.layer.properties.opa_id}</p>
+      <p style="font-size: calc(100% + 1pt); font-weight: bold;">${e.layer.properties.address}</p>
+      <p><strong>Gun crime rate:</strong> ${e.layer.properties.guncrime_density}</p>
+      <p><strong>Tree canopy gap:</strong> ${e.layer.properties.tree_canopy_gap}</p>
+      <p><strong>Owner:</strong> ${e.layer.properties.owner}</p>
+      <p><strong>Parcel Type:</strong> ${e.layer.properties.type}</p>
     `)
     .openOn(map);
 });
