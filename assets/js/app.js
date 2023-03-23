@@ -437,14 +437,15 @@ function buildConfig() {
 
 // Basemap Layers
 
-var grayBasemap = L.tileLayer(
-  "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}",
+var lightBasemap = L.tileLayer(
+  "https://api.mapbox.com/styles/v1/mapbox/light-v10/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoibmxlYm92aXRzIiwiYSI6ImNsZXQ2Nzd3ZDBjZnYzcHFvYXhib2RqYzQifQ.PWg2LuNCH1E6-REjmYvdOg",
   {
     attribution:
-      'Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ',
+      'Map data &copy; <a href="https://www.mapbox.com/">Mapbox</a>',
     maxZoom: 16,
   }
 );
+
 
 var featureStyle = function(properties, zoom) {
   const fillColor = properties.guncrime_density === 'Bottom 50%' ? '#003f5c' :
@@ -661,8 +662,8 @@ info.update = function(props) {
 info.addTo(map);
 $(".info-control").hide();
 
-// Add the grayBasemap layer as the default
-map.addLayer(grayBasemap);
+// Add the lightBasemap layer as the default
+map.addLayer(lightBasemap);
 map.addLayer(exampleDataLayer);
 
 // Larger screens get expanded layer control
@@ -672,7 +673,7 @@ if (document.body.clientWidth <= 767) {
   isCollapsed = false;
 }
 var baseLayers = {
-  "ESRI World Gray": grayBasemap,
+  "Mapbox Light": lightBasemap,
 };
 var overlayLayers = {
   "<span id='layer-name'>Properties</span>": exampleDataLayer
