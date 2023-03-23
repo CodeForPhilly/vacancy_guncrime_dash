@@ -26,7 +26,12 @@ var properties = [{
     sortable: true
   },
   filter: {
-    type: "string"
+    type: "string",
+    input: "checkbox",
+    vertical: true,
+    multiple: true,
+    operators: ["in"],
+    values: []
   },
   info: false
 }, {
@@ -37,7 +42,12 @@ var properties = [{
     sortable: true
   },
   filter: {
-    type: "string"
+    type: "string",
+    input: "checkbox",
+    vertical: true,
+    multiple: true,
+    operators: ["in"],
+    values: []
   },
   info: false
 }, {
@@ -59,7 +69,12 @@ var properties = [{
     sortable: true
   },
   filter: {
-    type: "boolean"
+    type: "string",
+    input: "checkbox",
+    vertical: true,
+    multiple: true,
+    operators: ["in"],
+    values: []
   },
   info: false
 }, {
@@ -81,7 +96,12 @@ var properties = [{
     sortable: true
   },
   filter: {
-    type: "string"
+    type: "string",
+    input: "checkbox",
+    vertical: true,
+    multiple: true,
+    operators: ["in"],
+    values: []
   },
   info: false
 }, {
@@ -134,7 +154,7 @@ var properties = [{
   }
 }, {
   value: "zipcode",
-  label: "Zip Code",
+  label: "ZIP",
   table: {
     visible: true,
     sortable: true
@@ -438,7 +458,7 @@ function buildConfig() {
 // Basemap Layers
 
 var lightBasemap = L.tileLayer(
-  "https://api.mapbox.com/styles/v1/mapbox/light-v10/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoibmxlYm92aXRzIiwiYSI6ImNsZXQ2Nzd3ZDBjZnYzcHFvYXhib2RqYzQifQ.PWg2LuNCH1E6-REjmYvdOg",
+  "https://api.mapbox.com/styles/v1/mapbox/light-v11/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoibmxlYm92aXRzIiwiYSI6ImNsZXQ2Nzd3ZDBjZnYzcHFvYXhib2RqYzQifQ.PWg2LuNCH1E6-REjmYvdOg",
   {
     attribution:
       'Map data &copy; <a href="https://www.mapbox.com/">Mapbox</a>',
@@ -446,16 +466,15 @@ var lightBasemap = L.tileLayer(
   }
 );
 
-
 var featureStyle = function(properties, zoom) {
-  const fillColor = properties.guncrime_density === 'Bottom 50%' ? '#003f5c' :
-    properties.guncrime_density === 'Top 50%' ? '#444e86' :
-    properties.guncrime_density === 'Top 25%' ? '#955196' :
-    properties.guncrime_density === 'Top 10%' ? '#dd5182' :
-    properties.guncrime_density === 'Top 5%' ? '#ff6e54' :
-    properties.guncrime_density === 'Top 1%' ? '#ffa600' :
+  const fillColor = properties.guncrime_density === 'Bottom 50%' ? '#fde0dd' :
+    properties.guncrime_density === 'Top 50%' ? '#f768a1' :
+    properties.guncrime_density === 'Top 25%' ? '#dd3497' :
+    properties.guncrime_density === 'Top 10%' ? '#ae017e' :
+    properties.guncrime_density === 'Top 5%' ? '#7a0177' :
+    properties.guncrime_density === 'Top 1%' ? '#49006a' :
     '#808080';
-  const fillOpacity = 0.7;
+  const fillOpacity = 0.9;
 
   return {
     stroke: false,
@@ -755,7 +774,7 @@ function buildTable() {
   });
 
  
-  map.setView([39.9526, -75.1652], 13);
+  map.setView([39.9526, -75.1652], 14);
 
 
   $(window).resize(function() {
