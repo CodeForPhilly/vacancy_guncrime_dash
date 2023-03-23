@@ -1,5 +1,5 @@
 var config = {
-  geojson: "./joined_gdf_sample.geojson",
+  geojson: "./joined_gdf_centroids.geojson",
   title: "Vacant and Abandoned Properties in Philadelphia",
   layerName: "Properties",
   hoverProperty: "address",
@@ -173,7 +173,7 @@ var properties = [{
     type: "string"
   },
   info: false
-}]; 
+}];
 
 function drawCharts() {
 // Public Owner
@@ -365,6 +365,7 @@ function buildConfig() {
         '</a>'
       ].join("");
     },
+    /*
     events: {
       "click .zoom": function(e, value, row, index) {
         map.fitBounds(featureLayer.getLayer(row.leaflet_stamp).getBounds());
@@ -377,6 +378,7 @@ function buildConfig() {
         highlightLayer.addData(featureLayer.getLayer(row.leaflet_stamp).toGeoJSON());
       }
     }
+    */
   }];
 
 
@@ -444,6 +446,53 @@ var grayBasemap = L.tileLayer(
   }
 );
 
+var featureStyle = function(properties, zoom) {
+  const fillColor = properties.guncrime_density === 'Bottom 50%' ? '#003f5c' :
+    properties.guncrime_density === 'Top 50%' ? '#444e86' :
+    properties.guncrime_density === 'Top 25%' ? '#955196' :
+    properties.guncrime_density === 'Top 10%' ? '#dd5182' :
+    properties.guncrime_density === 'Top 5%' ? '#ff6e54' :
+    properties.guncrime_density === 'Top 1%' ? '#ffa600' :
+    '#808080';
+  const fillOpacity = 0.5;
+
+  return {
+    stroke: false,
+    fill: true,
+    fillColor: fillColor,
+    fillOpacity: fillOpacity,
+  };
+};
+
+var exampleDataLayer = L.vectorGrid.protobuf(
+  "https://api.mapbox.com/v4/nlebovits.cne7vaoz/{z}/{x}/{y}.vector.pbf?access_token={token}",
+  {
+    token: "pk.eyJ1IjoibmxlYm92aXRzIiwiYSI6ImNsZXQ2Nzd3ZDBjZnYzcHFvYXhib2RqYzQifQ.PWg2LuNCH1E6-REjmYvdOg",
+    minZoom: 13,
+    interactive: true,
+    vectorTileLayerStyles: {
+      "joined_gdf-dr7mul": featureStyle
+    },
+    getFeatureId: function(f) {
+      return f.properties.opa_id;
+    }
+  }
+)
+exampleDataLayer.on("mouseover", function(e) {
+  const popup = L.popup()
+    .setLatLng(e.latlng)
+    .setContent(`
+      <h3>${e.layer.properties.address}</h3>
+      <p>${e.layer.properties.guncrime_density}</p>
+      <p>${e.layer.properties.owner}</p>
+      <p>${e.layer.properties.opa_id}</p>
+    `)
+    .openOn(map);
+});
+exampleDataLayer.on("mouseout", function(e) {
+  map.closePopup();
+});
+
 var highlightLayer = L.geoJson(null, {
   pointToLayer: function(feature, latlng) {
     return L.circleMarker(latlng, {
@@ -467,17 +516,17 @@ var highlightLayer = L.geoJson(null, {
     };
   }
 });
-
+/*
 var featureLayer = L.geoJson(null, {
   filter: function(feature, layer) {
     return feature.geometry.coordinates[0] !== 0 && feature.geometry.coordinates[
       1] !== 0;
   },
-  /*style: function (feature) {
+  style: function (feature) {
     return {
       color: feature.properties.color
     };
-  },*/
+  },
   pointToLayer: function(feature, latlng) {
     if (feature.properties && feature.properties["marker-color"]) {
       markerColor = feature.properties["marker-color"];
@@ -515,6 +564,7 @@ var featureLayer = L.geoJson(null, {
     }
   }
 });
+*/
 
 // Fetch the GeoJSON file
 $.getJSON(config.geojson, function(data) {
@@ -522,16 +572,18 @@ $.getJSON(config.geojson, function(data) {
   features = $.map(geojson.features, function(feature) {
     return feature.properties;
   });
-  featureLayer.addData(data);
+  /*featureLayer.addData(data);*/
   buildConfig();
+  syncTable(geojson.features);
   $("#loading-mask").hide();
 });
 
 var map = L.map("map", {
-  layers: [featureLayer, highlightLayer], 
+  layers: [/*featureLayer,*/ highlightLayer],
   preferCanvas: true,
 }).fitWorld();
 
+/*
 // Define custom search control using Nominatim geocoder
 var searchControl = L.Control.extend({
   options: {
@@ -590,6 +642,7 @@ var searchControl = L.Control.extend({
 
 // Add custom search control to map
 map.addControl(new searchControl());
+*/
 
 // Info control
 var info = L.control({
@@ -610,6 +663,7 @@ $(".info-control").hide();
 
 // Add the grayBasemap layer as the default
 map.addLayer(grayBasemap);
+map.addLayer(exampleDataLayer);
 
 // Larger screens get expanded layer control
 if (document.body.clientWidth <= 767) {
@@ -621,16 +675,21 @@ var baseLayers = {
   "ESRI World Gray": grayBasemap,
 };
 var overlayLayers = {
-  "<span id='layer-name'>GeoJSON Layer</span>": featureLayer
+  "<span id='layer-name'>Properties</span>": exampleDataLayer
 };
+
+/*
 var layerControl = L.control.layers(baseLayers, overlayLayers, {
   collapsed: isCollapsed
 }).addTo(map);
+*/
 
+/*
 // Filter table to only show features in current map bounds
 map.on("moveend", function(e) {
   syncTable();
 });
+*/
 
 map.on("click", function(e) {
   highlightLayer.clearLayers();
@@ -656,11 +715,15 @@ function applyFilter() {
   var sql = $("#query-builder").queryBuilder("getSQL", false, false).sql;
   if (sql.length > 0) {
     query += " WHERE " + sql;
+/*
+Here, we'll want to restyle the vt layers so that it becomes transparent and noninteractive
+*/
   }
   alasql(query, [geojson.features], function(features) {
-    featureLayer.clearLayers();
-    featureLayer.addData(features);
-    syncTable();
+    /*featureLayer.clearLayers();
+    featureLayer.addData(features);*/
+    syncLayer(features);
+    syncTable(features);
   });
 }
 
@@ -670,7 +733,8 @@ function buildTable() {
     height: $("#table-container").height(),
     undefinedText: "",
     striped: false,
-    pagination: false,
+    pagination: true,
+    pageSize: 10,
     minimumCountColumns: 1,
     sortName: config.sortProperty,
     sortOrder: config.sortOrder,
@@ -688,7 +752,9 @@ function buildTable() {
     }
   });
 
-  map.fitBounds(featureLayer.getBounds());
+ 
+  map.setView([39.9526, -75.1652], 13);
+
 
   $(window).resize(function() {
     $("#table").bootstrapTable("resetView", {
@@ -697,17 +763,56 @@ function buildTable() {
   });
 }
 
-function syncTable() {
+function syncLayer(features) {
+  var allFeatures = geojson.features;
+  var filteredFeatures = features;
+  var filteredFeatureIds = filteredFeatures.map(function(feature) {
+    return feature.properties.opa_id;
+  });
+  allFeatures.map(function(feature) {
+    var featureId = feature.properties.opa_id;
+    if (filteredFeatureIds.indexOf(featureId) > -1) {
+      exampleDataLayer.setFeatureStyle(feature.properties.opa_id, 
+        featureStyle(feature.properties));
+    } else {
+      exampleDataLayer.setFeatureStyle(feature.properties.opa_id, {
+        fillColor: "#ff0000",
+        fillOpacity: 0,
+        color: "#ff0000",
+        weight: 1,
+        opacity: 0,
+        fill: false,
+        interactive: false
+      });
+    }
+  });
+}
+
+function syncTable(features) {
   tableFeatures = [];
-  featureLayer.eachLayer(function(layer) {
+  /* featureLayer.eachLayer(function(layer) {
     layer.feature.properties.leaflet_stamp = L.stamp(layer);
     if (map.hasLayer(featureLayer)) {
       if (map.getBounds().contains(layer.getBounds())) {
         tableFeatures.push(layer.feature.properties);
       }
     }
+  });*/
+  features.forEach(function(feature) {
+    tableFeatures.push(feature.properties);
   });
+
+  /*
+  $("#table").bootstrapTable("destroy"); // Remove the existing table
+  $("#table").bootstrapTable({ // Initialize a new table with pagination
+    data: tableFeatures,
+    pagination: true,
+    pageSize: 10 // Set the number of rows per page
+  });
+*/
+
   $("#table").bootstrapTable("load", JSON.parse(JSON.stringify(tableFeatures)));
+  
   var featureCount = $("#table").bootstrapTable("getData").length;
   if (featureCount == 1) {
     $("#feature-count").html($("#table").bootstrapTable("getData").length +
@@ -717,6 +822,33 @@ function syncTable() {
       " visible features");
   }
 }
+
+/*
+function syncTable() {
+  tableFeatures = [];
+
+  geojson.features.forEach(function(feature) {
+    tableFeatures.push(feature.properties);
+  });
+
+  $("#table").bootstrapTable("destroy"); // Remove the existing table
+  $("#table").bootstrapTable({ // Initialize a new table with pagination
+    data: tableFeatures,
+    pagination: true,
+    pageSize: 10 // Set the number of rows per page
+  });
+
+  var featureCount = $("#table").bootstrapTable("getData").length;
+  if (featureCount == 1) {
+    $("#feature-count").html($("#table").bootstrapTable("getData").length +
+      " visible feature");
+  } else {
+    $("#feature-count").html($("#table").bootstrapTable("getData").length +
+      " visible features");
+  }
+}
+*/
+
 
 function identifyFeature(id) {
   var featureProperties = featureLayer.getLayer(id).feature.properties;
