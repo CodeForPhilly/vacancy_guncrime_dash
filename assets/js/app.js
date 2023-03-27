@@ -901,10 +901,11 @@ function switchView(view) {
   if (view == "split") {
     $("#view").html("Split View");
     location.hash = "#split";
-    $("#table-container").show();
+    $("#main-container").attr("data-mode", "split");
+    /*$("#table-container").show();
     $("#table-container").css("height", "55%");
     $("#map-container").show();
-    $("#map-container").css("height", "45%");
+    $("#map-container").css("height", "45%");*/
     $(window).resize();
     if (map) {
       map.invalidateSize();
@@ -912,18 +913,20 @@ function switchView(view) {
   } else if (view == "map") {
     $("#view").html("Map View");
     location.hash = "#map";
-    $("#map-container").show();
+    $("#main-container").attr("data-mode", "map-only");
+    /*$("#map-container").show();
     $("#map-container").css("height", "100%");
-    $("#table-container").hide();
+    $("#table-container").hide();*/
     if (map) {
       map.invalidateSize();
     }
   } else if (view == "table") {
     $("#view").html("Table View");
     location.hash = "#table";
-    $("#table-container").show();
+    $("#main-container").attr("data-mode", "table-only");
+    /*$("#table-container").show();
     $("#table-container").css("height", "100%");
-    $("#map-container").hide();
+    $("#map-container").hide();*/
     $(window).resize();
   }
 }
