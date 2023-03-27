@@ -467,12 +467,12 @@ var lightBasemap = L.tileLayer(
 );
 
 var featureStyle = function(properties, zoom) {
-  const fillColor = properties.guncrime_density === 'Bottom 50%' ? '#fde0dd' :
-    properties.guncrime_density === 'Top 50%' ? '#f768a1' :
-    properties.guncrime_density === 'Top 25%' ? '#dd3497' :
-    properties.guncrime_density === 'Top 10%' ? '#ae017e' :
-    properties.guncrime_density === 'Top 5%' ? '#7a0177' :
-    properties.guncrime_density === 'Top 1%' ? '#49006a' :
+  const fillColor = properties.guncrime_density === 'Bottom 50%' ? '#003f5c' :
+    properties.guncrime_density === 'Top 50%' ? '#444e86' :
+    properties.guncrime_density === 'Top 25%' ? '#955196' :
+    properties.guncrime_density === 'Top 10%' ? '#dd5182' :
+    properties.guncrime_density === 'Top 5%' ? '#ff6e54' :
+    properties.guncrime_density === 'Top 1%' ? '#ffa600' :
     '#808080';
   const fillOpacity = 0.9;
 
