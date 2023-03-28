@@ -604,6 +604,38 @@ var map = L.map("map", {
   preferCanvas: true,
 }).fitWorld();
 
+
+function getColor(properties) {
+  return properties.guncrime_density === 'Bottom 50%' ? '#003f5c' :
+  properties.guncrime_density === 'Top 50%' ? '#444e86' :
+  properties.guncrime_density === 'Top 25%' ? '#955196' :
+  properties.guncrime_density === 'Top 10%' ? '#dd5182' :
+  properties.guncrime_density === 'Top 5%' ? '#ff6e54' :
+  properties.guncrime_density === 'Top 1%' ? '#ffa600' :
+  '#808080';
+}
+
+var legend = L.control({position: 'bottomright'});
+
+legend.onAdd = function (map) {
+  var div = L.DomUtil.create('div', 'info legend'),
+      grades = ["Bottom 50%", "Top 50%", "Top 25%", "Top 10%", "Top 5%", "Top 1%"].reverse(),
+      labels = [];
+
+    // loop through our density intervals and generate a label with a colored square for each interval
+    for (var i = 0; i < grades.length; i++) {
+      var category = { guncrime_density: grades[i] };
+      div.innerHTML +=
+          '<i style="background:' + getColor(category) + '"></i> ' +
+          grades[i] + '<br>';
+  }
+
+  return div;
+};
+
+legend.addTo(map);
+
+
 /*
 // Define custom search control using Nominatim geocoder
 var searchControl = L.Control.extend({
