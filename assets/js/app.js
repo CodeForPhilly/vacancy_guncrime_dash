@@ -1,5 +1,5 @@
 var config = {
-  geojson: "./joined_gdf_centroids.geojson",
+  geojson: "./2023_04_16_parcels_w_decision_tree.geojson",
   title: "Vacant and Abandoned Properties in Philadelphia",
   layerName: "Properties",
   hoverProperty: "address",
@@ -19,155 +19,6 @@ var properties = [{
   },
   info: false
 }, {
-  value: "guncrime_density",
-  label: "Gun Crime Rate",
-  table: {
-    visible: true,
-    sortable: true
-  },
-  filter: {
-    type: "string",
-    input: "checkbox",
-    vertical: true,
-    multiple: true,
-    operators: ["in"],
-    values: []
-  },
-  info: false
-}, {
-  value: "tree_canopy_gap",
-  label: "Tree Canopy Gap",
-  table: {
-    visible: true,
-    sortable: true
-  },
-  filter: {
-    type: "string",
-    input: "checkbox",
-    vertical: true,
-    multiple: true,
-    operators: ["in"],
-    values: []
-  },
-  info: false
-}, {
-  value: "owner",
-  label: "Owner(s)",
-  table: {
-    visible: true,
-    sortable: true
-  },
-  filter: {
-    type: "string"
-  },
-  info: false
-}, {
-  value: "public_owner",
-  label: "Public Owner?",
-  table: {
-    visible: true,
-    sortable: true
-  },
-  filter: {
-    type: "string",
-    input: "checkbox",
-    vertical: true,
-    multiple: true,
-    operators: ["in"],
-    values: []
-  },
-  info: false
-}, {
-  value: "comm_partn",
-  label: "PHS Partner",
-  table: {
-    visible: true,
-    sortable: true
-  },
-  filter: {
-    type: "string"
-  },
-  info: false
-}, {
-  value: "type",
-  label: "Parcel Type",
-  table: {
-    visible: true,
-    sortable: true
-  },
-  filter: {
-    type: "string",
-    input: "checkbox",
-    vertical: true,
-    multiple: true,
-    operators: ["in"],
-    values: []
-  },
-  info: false
-}, {
-  value: "blg_desc",
-  label: "Parcel Description",
-  table: {
-    visible: true,
-    sortable: true
-  },
-  filter: {
-    type: "string"
-  },
-  info: false
-}, {
-  value: "li_complaints",
-  label: "L&I Complaints",
-  table: {
-    visible: true,
-    sortable: true
-  },
-  filter: {
-    type: "string"
-  },
-  info: false
-}, {
-  value: "li_code_violations",
-  label: "L&I Code Violations",
-  table: {
-    visible: true,
-    sortable: true
-  },
-  filter: {
-    type: "string"
-  },
-  info: false
-}, {
-  value: "councildistrict",
-  label: "Council District",
-  table: {
-    visible: true,
-    sortable: true
-  },
-  filter: {
-    type: "string",
-    input: "checkbox",
-    vertical: true,
-    multiple: true,
-    operators: ["in", "not_in", "equal", "not_equal"],
-    values: []
-  }
-}, {
-  value: "zipcode",
-  label: "ZIP",
-  table: {
-    visible: true,
-    sortable: true
-  },
-  filter: {
-    type: "string",
-    input: "checkbox",
-    vertical: true,
-    multiple: true,
-    operators: ["in", "not_in", "equal", "not_equal"],
-    values: []
-  }
-}, {
   value: "neighborhood",
   label: "Neighborhood",
   table: {
@@ -183,8 +34,40 @@ var properties = [{
     values: []
   }
 }, {
-  value: "relevant_rcos",
-  label: "Relevant RCOs",
+  value: "priority_level",
+  label: "Priority Level",
+  table: {
+    visible: true,
+    sortable: true
+  },
+  filter: {
+    type: "string",
+    input: "checkbox",
+    vertical: true,
+    multiple: true,
+    operators: ["in", "not_in", "equal", "not_equal"],
+    values: []
+  },
+  info: false
+},{
+  value: "acquisition_process",
+  label: "Acquisition Process",
+  table: {
+    visible: true,
+    sortable: true
+  },
+  filter: {
+    type: "string",
+    input: "checkbox",
+    vertical: true,
+    multiple: true,
+    operators: ["in", "not_in", "equal", "not_equal"],
+    values: []
+  },
+  info: false
+},{
+  value: "relevant_info",
+  label: "Relevant Info",
   table: {
     visible: true,
     sortable: true
@@ -467,12 +350,12 @@ var lightBasemap = L.tileLayer(
 );
 
 var featureStyle = function(properties, zoom) {
-  const fillColor = properties.guncrime_density === 'Bottom 50%' ? '#003f5c' :
-    properties.guncrime_density === 'Top 50%' ? '#444e86' :
-    properties.guncrime_density === 'Top 25%' ? '#955196' :
-    properties.guncrime_density === 'Top 10%' ? '#dd5182' :
-    properties.guncrime_density === 'Top 5%' ? '#ff6e54' :
-    properties.guncrime_density === 'Top 1%' ? '#ffa600' :
+  const fillColor = properties.acquisition_process === 'Buy from owner' ? '#1b9e77' :
+    properties.acquisition_process === 'Deed from City' ? '#d95f02' :
+    properties.acquisition_process === 'Force foreclosure' ? '#7570b3' :
+    properties.acquisition_process === "Sherrif's sale" ? '#e7298a' :
+    properties.acquisition_process === 'Turn over to developer' ? '#66a61e' :
+    properties.acquisition_process === 'Work with owner' ? '#e6ab02' :
     '#808080';
   const fillOpacity = 0.9;
 
@@ -485,13 +368,13 @@ var featureStyle = function(properties, zoom) {
 };
 
 var exampleDataLayer = L.vectorGrid.protobuf(
-  "https://api.mapbox.com/v4/nlebovits.cne7vaoz/{z}/{x}/{y}.vector.pbf?access_token={token}",
+  "https://api.mapbox.com/v4/nlebovits.7eef5ww8/{z}/{x}/{y}.vector.pbf?access_token={token}",
   {
     token: "pk.eyJ1IjoibmxlYm92aXRzIiwiYSI6ImNsZXQ2Nzd3ZDBjZnYzcHFvYXhib2RqYzQifQ.PWg2LuNCH1E6-REjmYvdOg",
     minZoom: 13,
     interactive: true,
     vectorTileLayerStyles: {
-      "joined_gdf-dr7mul": featureStyle
+      "2023_04_16_w_dec_tree_polys-5pjm2x": featureStyle
     },
     getFeatureId: function(f) {
       return f.properties.opa_id;
@@ -503,6 +386,7 @@ exampleDataLayer.on("mouseover", function(e) {
     .setLatLng(e.latlng)
     .setContent(`
       <p style="font-size: calc(100% + 1pt); font-weight: bold;">${e.layer.properties.address}</p>
+      <p><strong>Priority Level:</strong> ${e.layer.properties.priority_level}</p>
       <p><strong>Gun crime rate:</strong> ${e.layer.properties.guncrime_density}</p>
       <p><strong>Tree canopy gap:</strong> ${e.layer.properties.tree_canopy_gap}</p>
       <p><strong>Owner:</strong> ${e.layer.properties.owner}</p>
@@ -606,12 +490,12 @@ var map = L.map("map", {
 
 
 function getColor(properties) {
-  return properties.guncrime_density === 'Bottom 50%' ? '#003f5c' :
-  properties.guncrime_density === 'Top 50%' ? '#444e86' :
-  properties.guncrime_density === 'Top 25%' ? '#955196' :
-  properties.guncrime_density === 'Top 10%' ? '#dd5182' :
-  properties.guncrime_density === 'Top 5%' ? '#ff6e54' :
-  properties.guncrime_density === 'Top 1%' ? '#ffa600' :
+  return properties.acquisition_process === 'Buy from owner' ? '#1b9e77' :
+  properties.acquisition_process === 'Deed from City' ? '#d95f02' :
+  properties.acquisition_process === 'Force foreclosure' ? '#7570b3' :
+  properties.acquisition_process === "Sherrif's sale" ? '#e7298a' :
+  properties.acquisition_process === 'Turn over to developer' ? '#66a61e' :
+  properties.acquisition_process === 'Work with owner' ? '#e6ab02' :
   '#808080';
 }
 
@@ -619,12 +503,12 @@ var legend = L.control({position: 'bottomright'});
 
 legend.onAdd = function (map) {
   var div = L.DomUtil.create('div', 'info legend'),
-      grades = ["Bottom 50%", "Top 50%", "Top 25%", "Top 10%", "Top 5%", "Top 1%"].reverse(),
+      grades = ['Buy from owner', 'Deed from City', 'Force foreclosure', "Sherrif's sale", 'Turn over to developer', 'Work with owner'].reverse(),
       labels = [];
 
     // loop through our density intervals and generate a label with a colored square for each interval
     for (var i = 0; i < grades.length; i++) {
-      var category = { guncrime_density: grades[i] };
+      var category = { acquisition_process: grades[i] };
       div.innerHTML +=
           '<i style="background:' + getColor(category) + '"></i> ' +
           grades[i] + '<br>';
