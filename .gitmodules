@@ -1,0 +1,3 @@
+[submodule "vacant-lots-proj"]
+	path = vacant-lots-proj
+	url = https://github.com/nlebovits/vacant-lots-proj.git
