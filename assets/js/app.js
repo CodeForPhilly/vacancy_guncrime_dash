@@ -1,6 +1,6 @@
 var config = {
   geojson: "./2023_04_16_parcels_w_decision_tree.geojson",
-  title: "Vacant and Abandoned Properties in Philadelphia",
+  title: "Vacant and Abandoned Properties in Philadelphia (DEMO)",
   layerName: "Properties",
   hoverProperty: "address",
   sortProperty: "guncrime_density",
