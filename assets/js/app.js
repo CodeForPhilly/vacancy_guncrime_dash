@@ -350,12 +350,9 @@ var lightBasemap = L.tileLayer(
 );
 
 var featureStyle = function(properties, zoom) {
-  const fillColor = properties.acquisition_process === 'Buy from owner' ? '#1b9e77' :
-    properties.acquisition_process === 'Deed from City' ? '#d95f02' :
-    properties.acquisition_process === 'Force foreclosure' ? '#7570b3' :
-    properties.acquisition_process === "Sherrif's sale" ? '#e7298a' :
-    properties.acquisition_process === 'Turn over to developer' ? '#66a61e' :
-    properties.acquisition_process === 'Work with owner' ? '#e6ab02' :
+  const fillColor = properties.priority_level === 'High Priority' ? '#e6550d' :
+    properties.priority_level === 'Medium Priority'? '#fdae6b' :
+    properties.priority_level === 'Low Priority'? '#fee6ce' :
     '#808080';
   const fillOpacity = 0.9;
 
@@ -490,12 +487,9 @@ var map = L.map("map", {
 
 
 function getColor(properties) {
-  return properties.acquisition_process === 'Buy from owner' ? '#1b9e77' :
-  properties.acquisition_process === 'Deed from City' ? '#d95f02' :
-  properties.acquisition_process === 'Force foreclosure' ? '#7570b3' :
-  properties.acquisition_process === "Sherrif's sale" ? '#e7298a' :
-  properties.acquisition_process === 'Turn over to developer' ? '#66a61e' :
-  properties.acquisition_process === 'Work with owner' ? '#e6ab02' :
+  return properties.priority_level === 'High Priority' ? '#e6550d' :
+  properties.priority_level === 'Medium Priority'? '#fdae6b' :
+  properties.priority_level === 'Low Priority'? '#fee6ce' :
   '#808080';
 }
 
@@ -503,12 +497,12 @@ var legend = L.control({position: 'bottomright'});
 
 legend.onAdd = function (map) {
   var div = L.DomUtil.create('div', 'info legend'),
-      grades = ['Buy from owner', 'Deed from City', 'Force foreclosure', "Sherrif's sale", 'Turn over to developer', 'Work with owner'].reverse(),
+      grades = ['High Priority', 'Medium Priority', 'Low Priority'],
       labels = [];
 
     // loop through our density intervals and generate a label with a colored square for each interval
     for (var i = 0; i < grades.length; i++) {
-      var category = { acquisition_process: grades[i] };
+      var category = { priority_level: grades[i] };
       div.innerHTML +=
           '<i style="background:' + getColor(category) + '"></i> ' +
           grades[i] + '<br>';
